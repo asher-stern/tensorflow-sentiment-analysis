@@ -63,7 +63,7 @@ with tf.variable_scope("content"):
 header_mul_result = tf.matmul(header_state_c, header_weight_vector) + header_bias
 content_mul_result = tf.matmul(content_state_c, content_weight_vector) + content_bias
 predicted = tf.sigmoid(header_mul_weight * header_mul_result + content_mul_weight * content_mul_result)
-
+predicted_as_vector = tf.reshape(predicted, shape=[-1])
 loss = tf.reduce_sum(tf.square(predicted - tf.reshape(input_labels, shape=[batch_size, 1])))
 
 global_step = tf.Variable(0, trainable=False)
@@ -112,7 +112,7 @@ if __name__ == '__main__':
                     input_label_vector = helper.convert_lines_to_labels(lines)
 
                     feed_dict = {input_header_text: input_header_text_vectors, input_content_text: input_content_text_vectors, input_labels: input_label_vector}
-                    (_loss, _, _predicted) = session.run([loss, train_op, tf.reshape(predicted, shape=[-1])], feed_dict=feed_dict)
+                    (_loss, _, _predicted) = session.run([loss, train_op, predicted_as_vector], feed_dict=feed_dict)
                     assessment = helper.prediction_assessment(input_label_vector, _predicted)
                     (_, _percent) = assessment
                     av.add(_percent)
